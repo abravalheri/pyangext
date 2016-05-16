@@ -2,7 +2,7 @@
 """TODO: doc
 """
 from pyangext.definitions import PREFIX_SEPARATOR
-from pyangext.utils import namespacefy
+from pyangext.utils import prefixify
 
 __author__ = "Anderson Bravalheri"
 __copyright__ = "Copyright (C) 2016 Anderson Bravalheri"
@@ -26,7 +26,7 @@ class Registry(object):
             return some_prefix
 
         if prefix is None:
-            prefix = namespacefy(name)
+            prefix = prefixify(name)
 
         occurencies = self.prefix_request.get(prefix, 0) + 1
 
@@ -107,8 +107,12 @@ class Detector(object):
         if PREFIX_SEPARATOR in identifier:
             prefix, identifier = identifier.split(PREFIX_SEPARATOR)
         else:
-            prefix = module.search_one('prefix').arg
             origin = module.arg
+            prefix = (
+                module.i_prefix or
+                module.search_one('prefix').arg or
+                prefixify(origin)
+            )
 
         if not origin:
             # when typedef is not local find the origin

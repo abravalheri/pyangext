@@ -57,12 +57,12 @@ the ``pyang`` command, but using the auto-discovery feature.
       run  invoke pyang script with plugin path adjusted using auto-discovery.
 
 """
-import pkg_resources
 import sys
 from os import environ
 from os.path import dirname, pathsep
 from subprocess import Popen
 
+import pkg_resources
 from six.moves import shlex_quote
 
 import click
@@ -178,7 +178,9 @@ def call_pyang(args):
     """invoke pyang script with plugin path adjusted using auto-discovery"""
 
     environ['PYANG_PLUGINPATH'] = pathsep.join(expanded_path())
-    Popen(['pyang'] + list(args), stdout=sys.stdout, stderr=sys.stderr)
+    proc = Popen(['pyang'] + list(args), stdout=sys.stdout, stderr=sys.stderr)
+    proc.wait()
+    return proc.returncode
 
 
 if __name__ == "__main__":

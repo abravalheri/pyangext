@@ -20,13 +20,13 @@ _YangOptions = namedtuple(  # pylint: disable=invalid-name
 _SimpleContext = namedtuple(  # pylint: disable=invalid-name
     '_SimpleContext', ('opts',))
 _ctx = _SimpleContext(  # pylint: disable=invalid-name
-    _YangOptions(True, True))
+    _YangOptions(False, True))
 
 
 class YangBuilder(object):
     # pylint: disable=no-self-use
 
-    def __call__(self, keyword, arg=None, children=None):
+    def __call__(self, keyword, arg=None, children=None, parent=None):
         children = children or []
 
         if hasattr(arg, '__iter__') or isinstance(arg, Statement):
@@ -36,7 +36,7 @@ class YangBuilder(object):
         if not hasattr(children, '__iter__'):
             children = [children]
 
-        node = Statement(None, None, None, keyword, arg)
+        node = Statement(None, parent, None, keyword, arg)
         node.substmts = children
 
         return node
@@ -44,12 +44,12 @@ class YangBuilder(object):
     def __getattr__(self, keyword):
         keyword = keyword.replace('__', ':').replace('_', '-')
 
-        def factory(arg=None, children=None, prefix=None):
+        def factory(arg=None, children=None, prefix=None, **kwargs):
             node_type = keyword
             if prefix is not None:
                 node_type = PREFIX_SEPARATOR.join([prefix, keyword])
 
-            return self.__call__(node_type, arg, children)
+            return self.__call__(node_type, arg, children, **kwargs)
 
         return factory
 
@@ -78,31 +78,3 @@ class YangBuilder(object):
             _file_obj.getvalue(), _file_obj.close())[0]
 
 builder = YangBuilder()  # pylint: disable=invalid-name
-
-
-"""
-class Module(Statement):
-    def __init__(self, arg=None, children=[]):
-        super(Module, self).__init__('module', arg, children)
-
-        self.name = self.arg
-
-        self.prefix = self.i_prefix or self.search_one('prefix').arg
-        self.prefix_joiner = '_' if '_' in self.prefix else '-'
-
-        self.namespace = self.search_one('namespace').arg
-        self.namespace_joiner = '/' if '://' in self.namespace else ':'
-
-    def augmented_prefix(self, *sufixes):
-        return self.namespace_joiner.join([self.prefix] + list(sufixes))
-
-    def augmented_namespace(self, *sufixes):
-        return self.namespace_joiner.join([self.namespace] + list(sufixes))
-
-    @classmethod
-    def coerce(cls, module):
-        if type(module) is not cls:
-            return cls(module.arg, module.substmts)
-
-        return module
-"""
