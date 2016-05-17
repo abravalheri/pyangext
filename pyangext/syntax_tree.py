@@ -37,15 +37,15 @@ class YangBuilder(object):
         >>> Y.dump(Y.leaf_list('allow-user', [
                 Y.type('string'), Y.description('username')
             ]))
-        # => "leaf-list allow-user {
+        # => 'leaf-list allow-user {
         #       type string;
         #       description "username";
-        #     }"
+        #     }'
         >>> Y.dump(Y.ext__c_define(
                 'INTERFACES', Y.if_feature('local-storage')))
-        # => "ext:c-define INTERFACES {
+        # => 'ext:c-define "INTERFACES" {
         #       if-feature local-storage;
-        #     }"
+        #     }'
 
     When the builder itself is called, the first argument is used as
     keyword for the statement and the second is used as its argument.
@@ -53,9 +53,9 @@ class YangBuilder(object):
 
         >>> Y.dump(Y('ext:c-define', 'INTERFACES',
                      Y.if_feature('local-storage')))
-        # => "ext:c-define INTERFACES {
+        # => 'ext:c-define "INTERFACES" {
         #       if-feature local-storage;
-        #     }"
+        #     }'
 
     """
     # pylint: disable=no-self-use
