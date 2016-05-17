@@ -1,19 +1,16 @@
+.. image:: https://travis-ci.org/abravalheri/pyangext.svg?branch=master
+    :target: https://travis-ci.org/abravalheri/pyangext
+.. image:: https://coveralls.io/repos/github/abravalheri/pyangext/badge.svg?branch=master
+    :target: https://coveralls.io/github/abravalheri/pyangext?branch=master
+
 ========
 pyangext
 ========
 
-
-Base for pyang extensions
+Sensible extensions for ``pyang``
 
 
 Description
 ===========
 
 A LONGER DESCRIPTION OF YOUR PROJECT GOES HERE...
-
-
-Note
-====
-
-This project has been set up using PyScaffold 2.5.4. For details and usage
-information on PyScaffold see http://pyscaffold.readthedocs.org/.
