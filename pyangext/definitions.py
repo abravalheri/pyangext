@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""TODO: doc
-"""
+"""Meta information about YANG modeling language."""
 
 __author__ = "Anderson Bravalheri"
 __copyright__ = "Copyright (C) 2016 Anderson Bravalheri"
