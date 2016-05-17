@@ -20,10 +20,10 @@ addons:
 install:
   - source tests/travis_install.sh
   - pip install -r requirements.txt
-before_script:
-  - git config --global user.email "you@example.com"
-  - git config --global user.name "Your Name"
+  - pip install -r test-requirements.txt
 script:
+  - flake8 pyangext
+  - pylint pyangext
   - python setup.py test
 after_success:
   - if [[ "$COVERAGE" == "true" ]]; then coveralls || echo "failed"; fi
