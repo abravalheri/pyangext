@@ -22,8 +22,6 @@ install:
   - pip install -r requirements.txt
   - pip install -r test-requirements.txt
 script:
-  - flake8 pyangext
-  - pylint pyangext
   - python setup.py test
 after_success:
   - if [[ "$COVERAGE" == "true" ]]; then coveralls || echo "failed"; fi

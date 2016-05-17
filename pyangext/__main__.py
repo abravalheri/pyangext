@@ -76,7 +76,7 @@ __copyright__ = "Copyright (C) 2016 Anderson Bravalheri"
 __license__ = "mozilla"
 
 
-def fixdoc(func):
+def _fixdoc(func):
     """Fix the text wrapping in a function's docstring"""
     docstring = dedent(func.__doc__)
     lines = (' '.join(line.split()) for line in docstring.split('\n\n'))
@@ -131,7 +131,11 @@ def expanded_path():
     new = original + registered
     seen = set()
     seen_add = seen.add
-    return [path for path in new if not (path in seen or seen_add(path))]
+    return [
+        path
+        for path in new
+        if path and not (path in seen or seen_add(path))
+    ]
 
 
 # click option callback
@@ -172,10 +176,10 @@ def export_path(ctx, _, value):
 @click.help_option('-h', '--help')
 @click.version_option(__version__, '-v', '--version')
 @click.option(
-    '--path', help=fixdoc(print_path),
+    '--path', help=_fixdoc(print_path),
     is_flag=True, expose_value=False, callback=print_path)
 @click.option(
-    '--init', '--export-path', help=fixdoc(export_path),
+    '--init', '--export-path', help=_fixdoc(export_path),
     is_flag=True, expose_value=False, callback=export_path)
 def cli():
     """\
@@ -185,7 +189,7 @@ def cli():
     """
     pass
 
-fixdoc(cli)
+_fixdoc(cli)
 
 
 @cli.command(
@@ -201,7 +205,7 @@ def call_pyang(args):
     proc.wait()
     return proc.returncode
 
-fixdoc(call_pyang)
+_fixdoc(call_pyang)
 
 
 if __name__ == "__main__":

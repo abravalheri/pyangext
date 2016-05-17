@@ -3,6 +3,7 @@
 # ATTENTION: Don't remove pytest-cov and pytest as they are needed.
 flake8
 isort
+mock
 pre-commit
 pytest
 pytest-cov
