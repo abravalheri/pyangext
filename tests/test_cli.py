@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # # pylint: disable=redefined-outer-name
 """
-tests for pyangext cmd
+tests for pyangext cli.call
 """
 import os
 import sys
@@ -16,7 +16,7 @@ import pytest
 from mock import MagicMock
 
 import pyangext
-from pyangext import __main__ as cmd
+from pyangext import cli
 
 __author__ = "Anderson Bravalheri"
 __copyright__ = "Copyright (C) 2016 Anderson Bravalheri"
@@ -154,7 +154,7 @@ def test_plugin_paths(dummy_plugin_dir, register_dummy_plugin):
         registered as entry_point
     """
     register_dummy_plugin()
-    locations = cmd.plugin_paths()
+    locations = cli.plugin_paths()
     assert dummy_plugin_dir in locations
 
 
@@ -166,18 +166,18 @@ def test_expanded_path(dummy_plugin_dir, register_dummy_plugin):
     """
     register_dummy_plugin()
     os.environ['PYANG_PLUGINPATH'] = '/abc'
-    locations = cmd.expanded_path()
+    locations = cli.expanded_path()
     assert dummy_plugin_dir in locations
     assert '/abc' in locations
 
     os.environ['PYANG_PLUGINPATH'] = '/abc:/def'
-    locations = cmd.expanded_path()
+    locations = cli.expanded_path()
     assert locations[0] == '/abc'
     assert locations[1] == '/def'
     assert locations[2] == dummy_plugin_dir
 
     os.environ['PYANG_PLUGINPATH'] = '/abc:/abc'
-    locations = cmd.expanded_path()
+    locations = cli.expanded_path()
     location_counter = Counter(locations)
     assert location_counter['/abc'] == 1
 
@@ -189,7 +189,7 @@ def test_print_path(dummy_plugin_dir, register_dummy_plugin, run_command):
     register_dummy_plugin()
     os.environ['PYANG_PLUGINPATH'] = '/abc:/def'
 
-    stdout, stderr = run_command(cmd.cli, '--path')
+    stdout, stderr = run_command(cli.call, '--path')
 
     expectation = shlex_quote('/abc:/def:{}'.format(dummy_plugin_dir))
 
@@ -204,7 +204,7 @@ def test_export_path(dummy_plugin_dir, register_dummy_plugin, run_command):
     register_dummy_plugin()
     os.environ['PYANG_PLUGINPATH'] = '/abc:/def'
 
-    stdout, stderr = run_command(cmd.cli, '--export-path')
+    stdout, stderr = run_command(cli.call, '--export-path')
 
     expectation = (
         'export PYANG_PLUGINPATH=' +
@@ -223,24 +223,24 @@ def test_run(register_dummy_plugin, example_module, run_command):
     plugin options should work
     """
     register_dummy_plugin()
-    stdout, stderr = run_command(cmd.cli, 'run', '-v')
+    stdout, stderr = run_command(cli.call, 'run', '-v')
     assert not stderr
     assert 'pyangext' not in stdout
     assert pyangext.__version__ not in stdout
     assert 'pyang' in stdout
 
-    stdout, stderr = run_command(cmd.cli, 'run', '-h')
+    stdout, stderr = run_command(cli.call, 'run', '-h')
     assert not stderr
     assert 'FakeFixture Plugin Options' in stdout
     assert '--fake-fixture' in stdout
 
     stdout, stderr = run_command(
-        cmd.cli, 'run', '-f', 'fake-fixture', example_module)
+        cli.call, 'run', '-f', 'fake-fixture', example_module)
     assert not stderr
     assert 'Hello World!' in stdout
 
     stdout, stderr = run_command(
-        cmd.cli, 'run', '-f', 'fake-fixture',
+        cli.call, 'run', '-f', 'fake-fixture',
         '--fake-fixture-option', '!dlroW olleH', example_module)
     assert not stderr
     assert '!dlroW olleH' in stdout
