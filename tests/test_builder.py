@@ -5,7 +5,6 @@
 tests for YANG builder
 """
 import pytest
-from mock import Mock
 
 from pyang.statements import Statement
 
@@ -231,7 +230,6 @@ def test_wrapper_validate(builder):
     validate should not allow non top-level statements
     """
     leaf = builder.leaf('name', builder.type('string'))
-    ctx = Mock()
 
     with pytest.raises(ValidationError):
-        leaf.validate(ctx)
+        leaf.validate()

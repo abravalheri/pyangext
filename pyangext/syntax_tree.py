@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 """Tools for programmatic generation of a YANG Abstract Syntax Tree."""
-from collections import namedtuple
-
 from six import StringIO
 
 from pyang import statements as st
@@ -10,18 +8,14 @@ from pyang.translators import yang
 
 from pyangext import __version__  # noqa
 from pyangext.definitions import PREFIX_SEPARATOR
+from pyangext.utils import create_context
 
 __author__ = "Anderson Bravalheri"
 __copyright__ = "Copyright (C) 2016 Anderson Bravalheri"
 __license__ = "mozilla"
 
-# Mock context and CLI options objects to allow `emit_yang`usage
-_YangOptions = namedtuple(  # pylint: disable=invalid-name
-    '_YangOptions', ('yang_remove_unused_imports', 'yang_canonical'))
-_SimpleContext = namedtuple(  # pylint: disable=invalid-name
-    '_SimpleContext', ('opts',))
-_ctx = _SimpleContext(  # pylint: disable=invalid-name
-    _YangOptions(False, True))
+# Mock context and CLI options objects to allow `emit_yang` usage
+_ctx = create_context()  # pylint: disable=invalid-name
 
 
 class ValidationError(RuntimeError):
@@ -276,7 +270,7 @@ class StatementWrapper(object):
         """Retrieve the inner ``pyang.statements.Statement`` object"""
         return self._statement
 
-    def validate(self, ctx):
+    def validate(self, ctx=_ctx):
         """Validates the syntax tree.
 
         Should be called just from ``module``, ``submodule`` statements.
