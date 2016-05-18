@@ -21,7 +21,8 @@ install:
   - source tests/travis_install.sh
   - pip install -r requirements.txt
   - pip install -r test-requirements.txt
-  - pip install -I git+https://github.com/mbj4668/pyang.git@master
+  # force pyang version with patches
+  - pip install -I git+https://github.com/abravalhei/pyang.git@deploy
 script:
   - python setup.py test
 after_success:
