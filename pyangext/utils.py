@@ -14,9 +14,14 @@ DEFAULT_OPTIONS = {
     'keep_comments': True,
     'features': [],
     'deviations': [],
-    'path': []
+    'path': [],
 }
 """Default options for pyang command line"""
+
+DEFAULT_ATTRIBUTES = {
+    'trim_yin': False,
+}
+"""Default parameters for pyang context"""
 
 
 class objectify(object):  # pylint: disable=invalid-name
@@ -51,5 +56,8 @@ def create_context(path='.', *options, **kwargs):
     repo = FileRepository(path, no_path_recurse=opts.no_path_recurse)
     ctx = Context(repo)
     ctx.opts = opts
+
+    for attr, value in DEFAULT_ATTRIBUTES.items():
+        setattr(ctx, attr, value)
 
     return ctx
