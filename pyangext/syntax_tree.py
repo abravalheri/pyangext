@@ -18,9 +18,36 @@ __license__ = "mozilla"
 _ctx = create_context()  # pylint: disable=invalid-name
 
 
-class ValidationError(RuntimeError):
-    """Validation not alowed"""
-    pass
+def dump(node, file_obj=None, prev_indent='', indent_string='  ', ctx=_ctx):
+    """Generate a string representation of an abstract syntax tree.
+
+    Arguments:
+        node (pyang.statements.Statement): object to be represented
+        file_obj (file): *file-like* object where the representation
+            will be dumped. If nothing is passed, the method returns
+            a string
+
+    Keyword Arguments:
+        prev_indent (str): string to be added to the produced identation
+        indent_string (str): string to be used as identation
+        ctx (pyang.Context): contex object used to generate string
+            representation. If no context is passed, a dummy object
+            is used with default configuration
+
+    Returns:
+        str: text content if ``file_obj`` is not specified
+    """
+    # create a buffer to allow string return if no file_obj given
+    _file_obj = file_obj or StringIO()
+
+    if isinstance(node, StatementWrapper):
+        node = node._statement
+
+    # process AST
+    yang.emit_stmt(ctx, node, _file_obj, 1, None, prev_indent, indent_string)
+
+    # oneliners <3: if no file_obj get buffer content and close it!
+    return file_obj or (_file_obj.getvalue(), _file_obj.close())[0]
 
 
 class YangBuilder(object):
@@ -99,11 +126,12 @@ class YangBuilder(object):
             arg (str): argument of the statement
 
         Keyword Arguments:
-            children (list[pyang.statements.Statement]): optional statement
-                or list to be inserted as substatement
+            children: optional statement or list to be inserted as substatement
             parent (pyang.statements.Statement): optional parent statement
 
-        Returns: pyang.statements.Statement
+        Returns:
+            StatementWrapper: wrapper around ``pyang.statements.Statement``.
+                call ``unwrap`` if direct access is necessary.
         """
         children = children or []
 
@@ -121,8 +149,14 @@ class YangBuilder(object):
             node.arg = arg
             node.i_module = node
         else:
+            parent_node = (
+                parent._statement
+                if isinstance(arg, (st.Statement, StatementWrapper))
+                else parent
+            )
+
             node = st.Statement(
-                self._top, parent, self._top.pos, keyword, arg)
+                self._top, parent_node, self._top.pos, keyword, arg)
             node.i_module = self._top
 
         unwraped_children = []
@@ -174,39 +208,10 @@ class YangBuilder(object):
 
         return self.__call__('_comment', text)
 
-    def dump(
-            self, node, file_obj=None,
-            prev_indent='', indent_string='  ', ctx=_ctx):
-        """Generate a string representation of the abstract syntax tree.
 
-        Arguments:
-            node (pyang.statements.Statement): object to be represented
-            file_obj (file): *file-like* object where the representation
-                will be dumped. If nothing is passed, the method returns
-                a string
-
-        Keyword Arguments:
-            prev_indent (str): string to be added to the produced identation
-            indent_string (str): string to be used as identation
-            ctx (pyang.Context): contex object used to generate string
-                representation. If no context is passed, a dummy object
-                is used with default configuration
-
-        Returns:
-            str: text content if ``file_obj`` is not specified
-        """
-        # create a buffer to allow string return if no file_obj given
-        _file_obj = file_obj or StringIO()
-
-        if isinstance(node, StatementWrapper):
-            node = node._statement
-
-        # process AST
-        yang.emit_stmt(
-            ctx, node, _file_obj, 1, None, prev_indent, indent_string)
-
-        # oneliners <3: if no file_obj get buffer content and close it!
-        return file_obj or (_file_obj.getvalue(), _file_obj.close())[0]
+class ValidationError(RuntimeError):
+    """Validation not alowed"""
+    pass
 
 
 class StatementWrapper(object):
@@ -262,9 +267,9 @@ class StatementWrapper(object):
     def dump(self, *args, **kwargs):
         """Returns the string representation of the YANG module.
 
-        See :meth:`YangBuilder.dump`.
+        See :func:`dump`.
         """
-        return self._builder.dump(self._statement, *args, **kwargs)
+        return dump(self._statement, *args, **kwargs)
 
     def unwrap(self):
         """Retrieve the inner ``pyang.statements.Statement`` object"""
