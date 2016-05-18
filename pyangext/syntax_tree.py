@@ -135,12 +135,11 @@ class YangBuilder(object):
         """
         children = children or []
 
-        if (hasattr(arg, '__iter__') or
-                isinstance(arg, (st.Statement, StatementWrapper))):
+        if isinstance(arg, (list, tuple, st.Statement, StatementWrapper)):
             children = arg
             arg = None
 
-        if not (hasattr(children, '__iter__') and children.__iter__):
+        if not isinstance(children, (list, tuple)):
             children = [children]
 
         if keyword in ('module', 'submodule'):
@@ -151,7 +150,7 @@ class YangBuilder(object):
         else:
             parent_node = (
                 parent._statement
-                if isinstance(arg, (st.Statement, StatementWrapper))
+                if isinstance(parent, StatementWrapper)
                 else parent
             )
 
@@ -234,7 +233,6 @@ class StatementWrapper(object):
         """
         self._statement = statement
         self._builder = builder
-        self.__iter__ = None
 
     def __call__(self, *args, **kwargs):
         """Call ``__call__`` from builder, adding result as substatement.

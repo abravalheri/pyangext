@@ -22,7 +22,7 @@ install:
   - pip install -r requirements.txt
   - pip install -r test-requirements.txt
   # force pyang version with patches
-  - pip install -I git+https://github.com/abravalhei/pyang.git@deploy
+  - pip install -I git+https://github.com/abravalheri/pyang.git@deploy
 script:
   - python setup.py test
 after_success:
