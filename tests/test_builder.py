@@ -2,13 +2,13 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=redefined-outer-name
 """
-tests for YANG Y
+tests for YANG builder
 """
 import pytest
 
 from pyang.statements import Statement
 
-from pyangext.syntax_tree import ValidationError, YangBuilder, dump
+from pyangext.syntax_tree import StatementWrapper, YangBuilder, dump
 
 __author__ = "Anderson Bravalheri"
 __copyright__ = "Copyright (C) 2016 Anderson Bravalheri"
@@ -105,6 +105,42 @@ def test_blankline():
     assert dump(blankline).strip() == ''
 
 
+def test_from_tuple():
+    """
+    should build entire (nested) (sub)trees
+    should return argument if it is an StatementWrapper
+    should always return StatementWrapper
+    should raise ValueError ir argument is not tuple,
+        StatementWrapper or Statement
+    """
+    Y = YangBuilder()
+
+    module = Y.from_tuple(
+        ('module', 'test', [
+            ('namespace', 'urn:yang:test'),
+            ('prefix', 'test'),
+            ('leaf', 'data', [('type', 'anyxml')])
+        ])
+    )
+
+    assert dump(module).strip() == (
+        'module test {\n'
+        '  namespace "urn:yang:test";\n'
+        '  prefix test;\n'
+        '  leaf data {\n'
+        '    type anyxml;\n'
+        '  }\n'
+        '}'
+    )
+
+    assert id(Y.from_tuple(module)) == id(module)
+    assert isinstance(module, StatementWrapper)
+    assert isinstance(Y.from_tuple(module.unwrap()), StatementWrapper)
+
+    with pytest.raises(ValueError):
+        Y.from_tuple('foobar')
+
+
 def test_wrapper_dump():
     """
     dump should correctly print wrapper
@@ -170,7 +206,7 @@ def test_wrapper_call():
 
 def test_mix_builder():
     """
-    Y should mix with pyang standard
+    builder should mix with pyang standard
     """
     Y = YangBuilder()
 
@@ -179,11 +215,17 @@ def test_mix_builder():
         Statement(None, None, None, 'namespace', 'urn:yang:test')
     )
     module('prefix', 'test')
+    module.append(Y.from_tuple(
+        ('leaf', 'data', [('type', 'anyxml')])
+    ))
 
     assert module.dump().strip().strip() == (
         'module test {\n'
         '  namespace "urn:yang:test";\n'
         '  prefix test;\n'
+        '  leaf data {\n'
+        '    type anyxml;\n'
+        '  }\n'
         '}'
     )
 
@@ -207,7 +249,7 @@ def test_statement_without_arg():
         )),
     ])
 
-    assert module.dump().strip().strip() == (
+    assert module.dump().strip() == (
         'module test {\n'
         '  namespace "urn:yang:test";\n'
         '  prefix test;\n'
@@ -227,25 +269,3 @@ def test_statement_without_arg():
         '  }\n'
         '}'
     )
-
-
-def test_unwrap():
-    """
-    unwrap should return pyang.statements.Statement
-    """
-    Y = YangBuilder()
-
-    module = Y('module', 'test')
-    assert isinstance(module.unwrap(), Statement)
-
-
-def test_wrapper_validate():
-    """
-    validate should not allow non top-level statements
-    """
-    Y = YangBuilder()
-
-    leaf = Y.leaf('name', Y.type('string'))
-
-    with pytest.raises(ValidationError):
-        leaf.validate()

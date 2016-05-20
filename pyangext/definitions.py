@@ -111,3 +111,11 @@ ID_STATEMENTS = [
     'namespace',
     'prefix',
 ]
+
+DATA_STATEMENTS = [
+    'container',
+    'leaf',
+    'leaf-list',
+    'list',
+    'anyxml',
+]

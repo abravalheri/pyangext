@@ -61,3 +61,23 @@ def create_context(path='.', *options, **kwargs):
         setattr(ctx, attr, value)
 
     return ctx
+
+
+def compare_prefixed(arg1, arg2, prefix_sep=':', ignore_prefix=False):
+    """Compare 2 arguments : prefixed strings or tuple ``(prefix, string)``
+
+    Arguments:
+        arg1 (str or tuple): first argument
+        arg2 (str or tuple): first argument
+        prefix_sep (str): prefix string separator (default: ``':'``)
+
+    Returns:
+        boolean
+    """
+    cmp1 = arg1 if isinstance(arg1, tuple) else tuple(arg1.split(prefix_sep))
+    cmp2 = arg2 if isinstance(arg2, tuple) else tuple(arg2.split(prefix_sep))
+
+    if ignore_prefix:
+        return cmp1[-1:] == cmp2[-1:]
+
+    return cmp1 == cmp2
