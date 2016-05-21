@@ -57,7 +57,7 @@ def find(parent, keyword=None, arg=None, ignore_prefix=False):
     if isinstance(parent, StatementWrapper):
         parent = parent._statement
 
-    return select(parent, keyword, arg, ignore_prefix)
+    return select(parent.substmts, keyword, arg, ignore_prefix)
 
 
 def dump(node, file_obj=None, prev_indent='', indent_string='  ', ctx=None):
@@ -233,7 +233,7 @@ class YangBuilder(object):
         """Insert a empty line."""
         return self.__call__('_comment', '')
 
-    def comment(self, text):
+    def comment(self, text, parent=None):
         """Generate a comment node.
 
         Arguments:
@@ -249,7 +249,7 @@ class YangBuilder(object):
                 '\n*/'
             )
 
-        return self.__call__('_comment', text)
+        return self.__call__('_comment', text, parent=parent)
 
     def from_tuple(self, texp, parent=None):
         """Generates a YANG statement form a tuple-expression
@@ -350,7 +350,7 @@ class StatementWrapper(object):
 
         See :meth:`YangBuilder.__getattr__`.
         """
-        method = self._builder.__getattr__(name)
+        method = getattr(self._builder, name)
         parent = self._statement
 
         def _call(*args, **kwargs):
@@ -423,7 +423,7 @@ class StatementWrapper(object):
         node = self._statement
         if node.keyword not in ('module', 'submodule'):
             raise ValidationError(
-                'Cannot validate `%d`, only top-level statements '
+                'Cannot validate `%s`, only top-level statements '
                 '(module, submodule)', node.keyword)
 
         st.validate_module(ctx or create_context(), node)
