@@ -1,33 +1,62 @@
 # -*- coding: utf-8 -*-
 """Utility belt for working with ``pyang`` and ``pyangext``."""
+import logging
+from os.path import isfile
+from warnings import warn
+
 from six import StringIO
 
 from pyang import Context, FileRepository
+from pyang.error import err_level, err_to_str, error_codes, is_warning
 from pyang.translators import yang
+from pyang.yang_parser import YangParser
 
 from .definitions import PREFIX_SEPARATOR
 
-__all__ = ['create_context', 'compare_prefixed', 'select', 'find', 'dump']
+__all__ = [
+    'create_context',
+    'compare_prefixed',
+    'select',
+    'find',
+    'dump',
+    'check',
+    'parse',
+]
+
+logging.basicConfig(level=logging.INFO)
+logging.captureWarnings(True)
+LOGGER = logging.getLogger(__name__)
 
 DEFAULT_OPTIONS = {
-    'format': 'yang',
-    'verbose': True,
-    'list_errors': True,
-    'print_error_code': True,
-    'yang_remove_unused_imports': True,
-    'yang_canonical': True,
-    'trim_yin': False,
-    'keep_comments': True,
-    'features': [],
-    'deviations': [],
     'path': [],
+    'deviations': [],
+    'features': [],
+    'format': 'yang',
+    'keep_comments': True,
+    'no_path_recurse': False,
+    'trim_yin': False,
+    'yang_canonical': True,
+    'yang_remove_unused_imports': True,
+    # -- errors
+    'ignore_error_tags': [],
+    'ignore_errors': [],
+    'list_errors': True,
+    'print_error_code': False,
+    'errors': [],
+    'warnings': [code for code, desc in error_codes.items() if desc[0] > 4],
+    'verbose': True,
 }
 """Default options for pyang command line"""
 
-DEFAULT_ATTRIBUTES = {
-    'trim_yin': False,
-}
-"""Default parameters for pyang context"""
+_COPY_OPTIONS = [
+    'canonical',
+    'max_line_len',
+    'max_identifier_len',
+    'trim_yin',
+    'lax_xpath_checks',
+    'strict',
+]
+"""copy options to pyang context options"""
 
 
 class objectify(object):  # pylint: disable=invalid-name
@@ -63,8 +92,8 @@ def create_context(path='.', *options, **kwargs):
     ctx = Context(repo)
     ctx.opts = opts
 
-    for attr, value in DEFAULT_ATTRIBUTES.items():
-        setattr(ctx, attr, value)
+    for attr in _COPY_OPTIONS:
+        setattr(ctx, attr, getattr(opts, attr))
 
     return ctx
 
@@ -158,3 +187,98 @@ def dump(node, file_obj=None, prev_indent='', indent_string='  ', ctx=None):
 
     # oneliners <3: if no file_obj get buffer content and close it!
     return file_obj or (_file_obj.getvalue(), _file_obj.close())[0]
+
+
+def check(ctx, rescue=False):
+    """Check existence of errors or warnings in context.
+
+    Code mostly borrowed from ``pyang`` script.
+
+    Arguments:
+        ctx (pyang.Context): pyang context to be checked.
+
+    Keyword Arguments:
+        rescue (boolean): if ``True``, no exception/warning will be raised.
+
+    Raises:
+        SyntaxError: if errors detected
+
+    Warnings:
+        SyntaxWarning: if warnings detected
+
+    Returns:
+        tuple: (list of errors, list of warnings), if ``rescue`` is ``True``
+    """
+    errors = []
+    warnings = []
+    opts = ctx.opts
+
+    if opts.ignore_errors:
+        return (errors, warnings)
+
+    for (epos, etag, eargs) in ctx.errors:
+        if etag in opts.ignore_error_tags:
+            continue
+        if not ctx.implicit_errors and hasattr(epos.top, 'i_modulename'):
+            # this module was added implicitly (by import); skip this error
+            # the code includes submodules
+            continue
+        elevel = err_level(etag)
+        explain = etag if opts.print_error_code else err_to_str(etag, eargs)
+        message = '({}) {}'.format(str(epos), explain)
+        if is_warning(elevel) and etag not in opts.errors:
+            if 'error' in opts.warnings and etag not in opts.warnings:
+                pass
+            elif 'none' in opts.warnings:
+                continue
+            else:
+                warnings.append(message)
+                continue
+
+        errors.append(message)
+
+    if rescue:
+        return (errors, warnings)
+
+    if warnings:
+        for message in warnings:
+            warn(message, SyntaxWarning)
+
+    if errors:
+        raise SyntaxError('\n'.join(errors))
+
+
+def parse(text, ctx=None):
+    """Parse a YANG statement into an Abstract Syntax Tree
+
+    Arguments:
+        text (str): file name for a YANG module or text
+        ctx (optional pyang.Context): context used to validate text
+
+    Returns:
+        pyang.statements.Statement
+    """
+    parser = YangParser()
+
+    filename = 'parser-input'
+
+    ctx_ = ctx or create_context()
+
+    if isfile(text):
+        filename = text
+        with open(filename, 'r') as fp:
+            text = fp.read()
+
+    # ensure reported errors are just from parsing
+    old_errors = ctx_.errors
+    ctx_.errors = []
+
+    ast = parser.parse(ctx_, filename, text)
+
+    # look for errors and warnings
+    check(ctx_)
+
+    # restore other errors
+    ctx_.errors = old_errors
+
+    return ast

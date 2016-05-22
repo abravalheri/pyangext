@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # # pylint: disable=redefined-outer-name
 """
-tests for pyangext cli.call
+tests for pyangext path discovery utilities
 """
 import os
 

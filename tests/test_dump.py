@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=redefined-outer-name
 """
-tests for YANG builder
+tests for YANG AST to string conversion
 """
 from pyang.statements import Statement
 
