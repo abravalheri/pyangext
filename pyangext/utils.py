@@ -1,7 +1,13 @@
 # -*- coding: utf-8 -*-
 """Utility belt for working with ``pyang`` and ``pyangext``."""
+from six import StringIO
 
 from pyang import Context, FileRepository
+from pyang.translators import yang
+
+from .definitions import PREFIX_SEPARATOR
+
+__all__ = ['create_context', 'compare_prefixed', 'select', 'find', 'dump']
 
 DEFAULT_OPTIONS = {
     'format': 'yang',
@@ -63,7 +69,8 @@ def create_context(path='.', *options, **kwargs):
     return ctx
 
 
-def compare_prefixed(arg1, arg2, prefix_sep=':', ignore_prefix=False):
+def compare_prefixed(arg1, arg2,
+                     prefix_sep=PREFIX_SEPARATOR, ignore_prefix=False):
     """Compare 2 arguments : prefixed strings or tuple ``(prefix, string)``
 
     Arguments:
@@ -81,3 +88,73 @@ def compare_prefixed(arg1, arg2, prefix_sep=':', ignore_prefix=False):
         return cmp1[-1:] == cmp2[-1:]
 
     return cmp1 == cmp2
+
+
+def select(statements, keyword=None, arg=None, ignore_prefix=False):
+    """Given a list of statements filter by keyword, or argument or both.
+
+    Arguments:
+        statements (list of pyang.statements.Statement):
+            list of statements to be filtered.
+        keyword (str): if specified the statements should have this keyword
+        arg (str): if specified the statements should have this argument
+
+    ``keyword`` and ``arg`` can be also used as keyword arguments.
+
+    Returns:
+        list: nodes that matches the conditions
+    """
+    response = []
+    for item in statements:
+        if (keyword and keyword != item.keyword and
+                not compare_prefixed(
+                    keyword, item.raw_keyword, ignore_prefix=ignore_prefix)):
+            continue
+
+        if (arg and arg != item.arg and
+                not compare_prefixed(
+                    arg, item.arg, ignore_prefix=ignore_prefix)):
+            continue
+
+        response.append(item)
+
+    return response
+
+
+def find(parent, keyword=None, arg=None, ignore_prefix=False):
+    """Select all sub-statements by keyword, or argument or both.
+
+    See :func:`select`
+    """
+    return select(parent.substmts, keyword, arg, ignore_prefix)
+
+
+def dump(node, file_obj=None, prev_indent='', indent_string='  ', ctx=None):
+    """Generate a string representation of an abstract syntax tree.
+
+    Arguments:
+        node (pyang.statements.Statement): object to be represented
+        file_obj (file): *file-like* object where the representation
+            will be dumped. If nothing is passed, the method returns
+            a string
+
+    Keyword Arguments:
+        prev_indent (str): string to be added to the produced identation
+        indent_string (str): string to be used as identation
+        ctx (pyang.Context): contex object used to generate string
+            representation. If no context is passed, a dummy object
+            is used with default configuration
+
+    Returns:
+        str: text content if ``file_obj`` is not specified
+    """
+    # create a buffer to allow string return if no file_obj given
+    _file_obj = file_obj or StringIO()
+
+    # process AST
+    yang.emit_stmt(
+        ctx or create_context(), node, _file_obj, 1, None,
+        prev_indent, indent_string)
+
+    # oneliners <3: if no file_obj get buffer content and close it!
+    return file_obj or (_file_obj.getvalue(), _file_obj.close())[0]

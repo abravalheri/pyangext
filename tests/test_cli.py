@@ -6,10 +6,7 @@ tests for pyangext cli.call
 """
 import os
 import sys
-from collections import Counter
-from textwrap import dedent
 
-import pkg_resources
 from six.moves import shlex_quote
 
 import pytest
@@ -26,74 +23,6 @@ __license__ = "mozilla"
 class CliExecutionAbort(RuntimeError):
     """Custom exception to abort cli without sys.exit"""
     pass
-
-
-@pytest.fixture(scope='session')
-def example_module(tmpdir_factory):
-    """Creates a sample YANG file"""
-    location = tmpdir_factory.mktemp("examples")
-    example = location.join("example-module.yang")
-    example.write(dedent("""\
-        module example-module {
-          namespace "urn:yang:example:module";
-          prefix em;
-        }"""))
-
-    return str(example.realpath())
-
-
-@pytest.fixture(scope='session')
-def dummy_plugin_content():
-    """Dummy pyang content that dumps the contents of a parameter"""
-    return dedent("""\
-        import optparse
-        from pyang import plugin
-
-        def pyang_plugin_init():
-            plugin.register_plugin(FakeFixturePlugin())
-
-        class FakeFixturePlugin(plugin.PyangPlugin):
-            def add_opts(self, optparser):
-                g = optparser.add_option_group("FakeFixture Plugin Options")
-                g.add_options([
-                    optparse.make_option(
-                        "--fake-fixture-option", default="Hello World!")
-                ])
-
-            def add_output_format(self, fmts):
-                    self.multiple_modules = True
-                    fmts['fake-fixture'] = self
-
-            def emit(self, ctx, modules, fd):
-                fd.write(ctx.opts.fake_fixture_option)""")
-
-
-@pytest.fixture(scope='session')
-def dummy_plugin_dir(tmpdir_factory, dummy_plugin_content):
-    """Creates a temp directory with a dummy plugin inside"""
-    location = tmpdir_factory.mktemp("plugins")
-    location.join("fake_fixture_plugin.py").write(dummy_plugin_content)
-
-    return str(location.realpath())
-
-
-@pytest.fixture
-def register_dummy_plugin(dummy_plugin_dir, monkeypatch):
-    """Make entry point always include the dummy plugin"""
-    # pylint: disable=import-error
-    sys.path.append(dummy_plugin_dir)
-    from fake_fixture_plugin import pyang_plugin_init
-
-    def _mock():
-        monkeypatch.setattr(
-            pkg_resources,
-            'iter_entry_points',
-            MagicMock(return_value=[
-                MagicMock(load=MagicMock(return_value=pyang_plugin_init))
-            ])
-        )
-
-    return _mock
 
 
 @pytest.fixture
@@ -146,40 +75,6 @@ def run_command(tmpdir_factory, monkeypatch):
         return response
 
     return _run
-
-
-def test_plugin_paths(dummy_plugin_dir, register_dummy_plugin):
-    """
-    plugin_paths should include the directory of a plugin
-        registered as entry_point
-    """
-    register_dummy_plugin()
-    locations = cli.plugin_paths()
-    assert dummy_plugin_dir in locations
-
-
-def test_expanded_path(dummy_plugin_dir, register_dummy_plugin):
-    """
-    expanded_path should contain PYANG_PLUGINPATH
-    expanded_path should keep order with PYANG_PLUGINPATH in the begining
-    expanded_path should not contain duplicated values
-    """
-    register_dummy_plugin()
-    os.environ['PYANG_PLUGINPATH'] = '/abc'
-    locations = cli.expanded_path()
-    assert dummy_plugin_dir in locations
-    assert '/abc' in locations
-
-    os.environ['PYANG_PLUGINPATH'] = '/abc:/def'
-    locations = cli.expanded_path()
-    assert locations[0] == '/abc'
-    assert locations[1] == '/def'
-    assert locations[2] == dummy_plugin_dir
-
-    os.environ['PYANG_PLUGINPATH'] = '/abc:/abc'
-    locations = cli.expanded_path()
-    location_counter = Counter(locations)
-    assert location_counter['/abc'] == 1
 
 
 def test_print_path(dummy_plugin_dir, register_dummy_plugin, run_command):

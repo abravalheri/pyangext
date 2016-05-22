@@ -60,16 +60,16 @@ the ``pyang`` command, but using the auto-discovery feature.
 """
 import sys
 from os import environ
-from os.path import dirname, pathsep
+from os.path import pathsep
 from subprocess import Popen
 from textwrap import dedent
 
-import pkg_resources
 from six.moves import shlex_quote
 
 import click
 
-from pyangext import __version__  # noqa
+from . import __version__  # noqa
+from .paths import expanded
 
 __author__ = "Anderson Bravalheri"
 __copyright__ = "Copyright (C) 2016 Anderson Bravalheri"
@@ -87,57 +87,6 @@ def _fixdoc(func):
     return new_docstring
 
 
-def plugin_paths():
-    """Discovers pyang plugins registered using setuptools entry points.
-
-    Collects the path for all python modules that have functions
-    registered as an entry point inside ``yang.plugins`` group.
-
-    Ideally the function registered should be named ``pyang_plugin_init``.
-    It is also important to not include non-pyang-plugin python modules
-    in the same directory of this module.
-
-    Returns:
-        Array of paths that contains python modules with pyang plugins.
-
-    Reference:
-        https://pythonhosted.org/setuptools/setuptools.html#dynamic-discovery-of-services-and-plugins
-    """
-
-    dirs = []
-    for plugin in pkg_resources.iter_entry_points('pyang.plugins'):
-        try:
-            dirs.append(
-                dirname(sys.modules[plugin.load().__module__].__file__))
-        except (KeyError, AttributeError):
-            pass
-
-    return dirs
-
-
-def expanded_path():
-    """Combines the autodiscovered plugin paths with env ``PYANG_PLUGINPATH``.
-
-    This function appends paths discovered using ``plugin_paths`` function
-    to the list provided by ``PYANG_PLUGINPATH`` environment variable.
-    It also removes duplicated entries from the resulting list.
-
-    Returns:
-        Array of paths that contains python modules with pyang plugins.
-    """
-    original = environ.get('PYANG_PLUGINPATH', '').split(pathsep)
-    registered = plugin_paths()
-
-    new = original + registered
-    seen = set()
-    seen_add = seen.add
-    return [
-        path
-        for path in new
-        if path and not (path in seen or seen_add(path))
-    ]
-
-
 # click option callback
 def print_path(ctx, _, value):
     """\
@@ -149,7 +98,7 @@ def print_path(ctx, _, value):
     if not value or ctx.resilient_parsing:
         return
 
-    click.echo(pathsep.join(expanded_path()))
+    click.echo(pathsep.join(expanded()))
     ctx.exit()
 
 
@@ -168,7 +117,7 @@ def export_path(ctx, _, value):
 
     click.echo(
         'export PYANG_PLUGINPATH=' +
-        shlex_quote(pathsep.join(expanded_path())))
+        shlex_quote(pathsep.join(expanded())))
     ctx.exit()
 
 
@@ -200,7 +149,7 @@ def call_pyang(args):
     invoke pyang script with plugin path adjusted using auto-discovery
     """
 
-    environ['PYANG_PLUGINPATH'] = pathsep.join(expanded_path())
+    environ['PYANG_PLUGINPATH'] = pathsep.join(expanded())
     proc = Popen(['pyang'] + list(args), stdout=sys.stdout, stderr=sys.stderr)
     proc.wait()
     return proc.returncode
