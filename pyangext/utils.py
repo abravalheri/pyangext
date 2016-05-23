@@ -36,7 +36,7 @@ DEFAULT_OPTIONS = {
     'no_path_recurse': False,
     'trim_yin': False,
     'yang_canonical': True,
-    'yang_remove_unused_imports': True,
+    'yang_remove_unused_imports': False,
     # -- errors
     'ignore_error_tags': [],
     'ignore_errors': [],
@@ -89,6 +89,7 @@ def create_context(path='.', *options, **kwargs):
 
     opts = objectify(DEFAULT_OPTIONS, *options, **kwargs)
     repo = FileRepository(path, no_path_recurse=opts.no_path_recurse)
+
     ctx = Context(repo)
     ctx.opts = opts
 
@@ -96,6 +97,15 @@ def create_context(path='.', *options, **kwargs):
         setattr(ctx, attr, getattr(opts, attr))
 
     return ctx
+
+
+def qualify_str(arg, prefix_sep=PREFIX_SEPARATOR):
+    """Transform prefixed strings in tuple ``(prefix, string)``"""
+    response = arg if isinstance(arg, tuple) else tuple(arg.split(prefix_sep))
+    if len(response) == 2:
+        return response
+
+    return ('', response[0])
 
 
 def compare_prefixed(arg1, arg2,
@@ -110,8 +120,8 @@ def compare_prefixed(arg1, arg2,
     Returns:
         bool
     """
-    cmp1 = arg1 if isinstance(arg1, tuple) else tuple(arg1.split(prefix_sep))
-    cmp2 = arg2 if isinstance(arg2, tuple) else tuple(arg2.split(prefix_sep))
+    cmp1 = qualify_str(arg1, prefix_sep=PREFIX_SEPARATOR)
+    cmp2 = qualify_str(arg2, prefix_sep=PREFIX_SEPARATOR)
 
     if ignore_prefix:
         return cmp1[-1:] == cmp2[-1:]

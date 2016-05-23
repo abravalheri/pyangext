@@ -7,6 +7,8 @@ __license__ = "mozilla"
 
 PREFIX_SEPARATOR = ':'
 
+URL_SEPARATOR = '/'
+
 BUILT_IN_TYPES = [
     'binary',
     'bits',
