@@ -108,7 +108,7 @@ def compare_prefixed(arg1, arg2,
         prefix_sep (str): prefix string separator (default: ``':'``)
 
     Returns:
-        boolean
+        bool
     """
     cmp1 = arg1 if isinstance(arg1, tuple) else tuple(arg1.split(prefix_sep))
     cmp2 = arg2 if isinstance(arg2, tuple) else tuple(arg2.split(prefix_sep))
@@ -158,6 +158,33 @@ def find(parent, keyword=None, arg=None, ignore_prefix=False):
     return select(parent.substmts, keyword, arg, ignore_prefix)
 
 
+def walk(parent, select=lambda x: x, apply=lambda x: x, key='substmts'):
+    """Recursivelly find nodes and apply a function to them.
+
+    Arguments:
+        parent (pyang.staments.Statement): root of the subtree were
+            the search will take place.
+        select: optional callable that receives a node and returns a bool
+            (True if the node matches the criteria)
+        apply: optinal callable that are going to be applied to the node
+            if it matches the criteria
+        key (str): property where the children nodes are stored
+
+    Returns:
+        list: results collected from the apply function
+    """
+    results = []
+    if select(parent):
+        results.append(apply(parent))
+
+    if hasattr(parent, key):
+        children = getattr(parent, key)
+        for child in children:
+            results.extend(walk(child, select, apply, key))
+
+    return results
+
+
 def dump(node, file_obj=None, prev_indent='', indent_string='  ', ctx=None):
     """Generate a string representation of an abstract syntax tree.
 
@@ -198,7 +225,7 @@ def check(ctx, rescue=False):
         ctx (pyang.Context): pyang context to be checked.
 
     Keyword Arguments:
-        rescue (boolean): if ``True``, no exception/warning will be raised.
+        rescue (bool): if ``True``, no exception/warning will be raised.
 
     Raises:
         SyntaxError: if errors detected
