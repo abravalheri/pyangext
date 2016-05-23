@@ -74,7 +74,7 @@ WITH_ERRORS = pytest.mark.parametrize('error_type, text', [
     ('EXPECTED_ARGUMENT', 'module a { keyword }'),
     ('INCOMPLETE_STATEMENT', 'module a { leaf a { leaf type }'),
     ('EOF_ERROR', '/* unterminated comment'),
-    #  this do not need to be exaustive,
+    #  this do not need to be exhaustive,
     #  just ensure exceptions are raised
 ])
 
@@ -116,7 +116,7 @@ def test_not_raise_invalid_string_if_ignore_tag(ctx, error_type, text):
     'description "BEST DESCRIPTION EVER!!";',
     '// this is a single line comment\nleaf name { type string; }',
     '/* this is a\nmulti-line\ncomment */leaf name { type string; }',
-    # this do not need to be exaustive,
+    # this do not need to be exhaustive,
     # just parser produce Statement
 ])
 def test_parse_valid_string(text):

@@ -31,9 +31,9 @@ def container():
 
 def test_find(container):
     """
-    should find direct substatements by keyword + arg
-    should find direct substatements by keyword
-    should find direct substatements by arg
+    should find direct sub-statements by keyword + arg
+    should find direct sub-statements by keyword
+    should find direct sub-statements by arg
     should return StatementWrapper
     should not ignore prefix if no ``ignore_prefix`` were passed
     should ignore prefix in keyword if ``ignore_prefix`` were passed

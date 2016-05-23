@@ -27,16 +27,16 @@ class CliExecutionAbort(RuntimeError):
 
 @pytest.fixture
 def run_command(tmpdir_factory, monkeypatch):
-    """Fixture to run CLI command with arguments traping stdout and stderr"""
+    """Fixture to run CLI command with arguments trapping stdout and stderr"""
 
     def _run(command, *args):
-        """Run CLI command with arguments traping stdout and stderr
+        """Run CLI command with arguments trapping stdout and stderr
 
         Arguments:
             args (list): command line options and arguments
 
         Returns:
-            tuple: (captured stdout, captured stdin)
+            tuple: (captured stdout, captured stderr)
         """
         # prepare command options and arguments
         monkeypatch.setattr(sys, 'argv', ['pyangext'] + list(args))
@@ -45,7 +45,7 @@ def run_command(tmpdir_factory, monkeypatch):
         stdout_file = str(io_dir.join("stdout.txt").realpath())
         stderr_file = str(io_dir.join("stderr.txt").realpath())
 
-        # Trap IO
+        # Trap input/output
         with open(stdout_file, 'w') as trap_stdout, \
                 open(stderr_file, 'w') as trap_stderr:
 
@@ -62,7 +62,7 @@ def run_command(tmpdir_factory, monkeypatch):
             except CliExecutionAbort:
                 pass
 
-            # Untrap IO
+            # Untrap input/output
             sys.stdout, sys.stderr = old_stdout, old_stderr
 
             # Untrap sys.exit

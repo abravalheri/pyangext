@@ -26,7 +26,7 @@ def test_discover(dummy_plugin_dir, register_dummy_plugin):
 def test_expanded(dummy_plugin_dir, register_dummy_plugin):
     """
     expanded should contain PYANG_PLUGINPATH
-    expanded should keep order with PYANG_PLUGINPATH in the begining
+    expanded should keep order with PYANG_PLUGINPATH in the beginning
     expanded should not contain duplicated values
     """
     register_dummy_plugin()

@@ -19,7 +19,7 @@ the ``pyang`` command, but using the auto-discovery feature.
 .. note:: Including non pyang-plugin python files alongside pyang-plugins
     python files (in the same directory) will result in a pyang CLI crash.
 
-    It is recomended that the function registered as entry-point follows
+    It is recommended that the function registered as entry-point follows
     the proprietary pyang plugin convention, or in other words:
     - it should be named ``pyang_plugin_init``
     - it should call ``pyang.plugin.register_plugin`` with an instance of
@@ -47,7 +47,7 @@ the ``pyang`` command, but using the auto-discovery feature.
                              discovered plugin path.
 
                              This may be used by shell script to configure
-                             ``PYANG_PLUGINPATH`` evironment variable.
+                             ``PYANG_PLUGINPATH`` environment variable.
 
                              Example:
                                  eval $(pyangext --export-path)
@@ -108,7 +108,7 @@ def export_path(ctx, _, value):
     Prints an export shell statement with the auto discovered plugin path.
 
     This may be used by shell script to configure ``PYANG_PLUGINPATH``
-    evironment variable.
+    environment variable.
 
     Example: eval $(pyangext --export-path)
     """

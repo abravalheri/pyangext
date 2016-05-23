@@ -44,7 +44,7 @@ def discover():
 
 
 def expanded():
-    """Combines the autodiscovered plugin paths with env ``PYANG_PLUGINPATH``.
+    """Combines the auto-discovered plugin paths with env ``PYANG_PLUGINPATH``.
 
     This function appends paths discovered using ``discover`` function
     to the list provided by ``PYANG_PLUGINPATH`` environment variable.

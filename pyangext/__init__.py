@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 """Critical missing features for ``pyang`` plugin users and authors
 
-    ``pyangext`` is an abbreviation for **pyang** + sensible **ext**ensions
+    ``pyangext`` is an abbreviation for **pyang** + sensible **extensions**
 
 
 Plugin Auto-Registering
 =======================
 No need for coping and pasting ``.py`` files inside
-``pyang`` instalation dir or manually setting ``PYANG_PLUGINPATH``
+``pyang`` installation dir or manually setting ``PYANG_PLUGINPATH``
 environment variable. By using the ``pyangext`` command line tool all the
 plugins registered using ``setuptools`` entry-points are auto-detected.
 
-See :mod:`pyangext.__main__`.
+.. seealso:: module :mod:`pyangext.paths`.
 
 
 YANG module expansion

@@ -127,7 +127,7 @@ expected-line-ending-format=LF
 bad-functions=map,filter
 
 # Good variable names which should always be accepted, separated by a comma
-good-names=i,j,k,ex,_,x,y,X,Y
+good-names=i,j,k,x,y,X,Y,fp,ex,_
 
 # Bad variable names which should always be refused, separated by a comma
 bad-names=foo,bar,baz,toto,tutu,tata
@@ -231,13 +231,13 @@ notes=FIXME,XXX,TODO
 
 # Spelling dictionary name. Available dictionaries: none. To make it working
 # install python-enchant package.
-spelling-dict=
+spelling-dict=en_US
 
 # List of comma separated words that should not be checked.
-spelling-ignore-words=
+spelling-ignore-words=API,DSL,RPC,URL,RFC
 
 # A path to a file that contains private dictionary; one word per line.
-spelling-private-dict-file=
+spelling-private-dict-file=.spell
 
 # Tells whether to store unknown words to indicated private dictionary in
 # --spelling-private-dict-file option instead of raising a message.

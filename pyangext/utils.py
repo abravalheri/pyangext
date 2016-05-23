@@ -35,7 +35,7 @@ DEFAULT_OPTIONS = {
     'keep_comments': True,
     'no_path_recurse': False,
     'trim_yin': False,
-    'yang_canonical': True,
+    'yang_canonical': False,
     'yang_remove_unused_imports': False,
     # -- errors
     'ignore_error_tags': [],
@@ -120,8 +120,8 @@ def compare_prefixed(arg1, arg2,
     Returns:
         bool
     """
-    cmp1 = qualify_str(arg1, prefix_sep=PREFIX_SEPARATOR)
-    cmp2 = qualify_str(arg2, prefix_sep=PREFIX_SEPARATOR)
+    cmp1 = qualify_str(arg1, prefix_sep=prefix_sep)
+    cmp2 = qualify_str(arg2, prefix_sep=prefix_sep)
 
     if ignore_prefix:
         return cmp1[-1:] == cmp2[-1:]
@@ -163,20 +163,21 @@ def select(statements, keyword=None, arg=None, ignore_prefix=False):
 def find(parent, keyword=None, arg=None, ignore_prefix=False):
     """Select all sub-statements by keyword, or argument or both.
 
-    See :func:`select`
+    .. seealso:: function :func:`select`
     """
     return select(parent.substmts, keyword, arg, ignore_prefix)
 
 
 def walk(parent, select=lambda x: x, apply=lambda x: x, key='substmts'):
+    # pylint: disable=redefined-builtin,redefined-outer-name
     """Recursivelly find nodes and/or apply a function to them.
 
     Arguments:
-        parent (pyang.staments.Statement): root of the subtree were
+        parent (pyang.statements.Statement): root of the subtree were
             the search will take place.
         select: optional callable that receives a node and returns a bool
             (True if the node matches the criteria)
-        apply: optinal callable that are going to be applied to the node
+        apply: optional callable that are going to be applied to the node
             if it matches the criteria
         key (str): property where the children nodes are stored,
             default is ``substmts``
@@ -206,9 +207,9 @@ def dump(node, file_obj=None, prev_indent='', indent_string='  ', ctx=None):
             a string
 
     Keyword Arguments:
-        prev_indent (str): string to be added to the produced identation
-        indent_string (str): string to be used as identation
-        ctx (pyang.Context): contex object used to generate string
+        prev_indent (str): string to be added to the produced indentation
+        indent_string (str): string to be used as indentation
+        ctx (pyang.Context): context object used to generate string
             representation. If no context is passed, a dummy object
             is used with default configuration
 
@@ -223,7 +224,7 @@ def dump(node, file_obj=None, prev_indent='', indent_string='  ', ctx=None):
         ctx or create_context(), node, _file_obj, 1, None,
         prev_indent, indent_string)
 
-    # oneliners <3: if no file_obj get buffer content and close it!
+    # one-liners <3: if no file_obj get buffer content and close it!
     return file_obj or (_file_obj.getvalue(), _file_obj.close())[0]
 
 
