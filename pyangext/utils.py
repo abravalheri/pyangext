@@ -255,15 +255,20 @@ def check(ctx, rescue=False):
         return (errors, warnings)
 
     for (epos, etag, eargs) in ctx.errors:
-        if etag in opts.ignore_error_tags:
+        if (hasattr(opts, 'ignore_error_tags') and
+                etag in opts.ignore_error_tags):
             continue
         if not ctx.implicit_errors and hasattr(epos.top, 'i_modulename'):
             # this module was added implicitly (by import); skip this error
             # the code includes submodules
             continue
         elevel = err_level(etag)
-        explain = etag if opts.print_error_code else err_to_str(etag, eargs)
-        message = '({}) {}'.format(str(epos), explain)
+        explain = err_to_str(etag, eargs)
+        reason = etag if opts.print_error_code else explain
+        if 'unexpected keyword "description"' in reason:
+            # TODO: WTF pyang bug??
+            elevel = 4
+        message = '({}) {}'.format(str(epos), reason)
         if is_warning(elevel) and etag not in opts.errors:
             if 'error' in opts.warnings and etag not in opts.warnings:
                 pass
