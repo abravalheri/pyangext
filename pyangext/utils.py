@@ -159,7 +159,7 @@ def find(parent, keyword=None, arg=None, ignore_prefix=False):
 
 
 def walk(parent, select=lambda x: x, apply=lambda x: x, key='substmts'):
-    """Recursivelly find nodes and apply a function to them.
+    """Recursivelly find nodes and/or apply a function to them.
 
     Arguments:
         parent (pyang.staments.Statement): root of the subtree were
@@ -168,7 +168,8 @@ def walk(parent, select=lambda x: x, apply=lambda x: x, key='substmts'):
             (True if the node matches the criteria)
         apply: optinal callable that are going to be applied to the node
             if it matches the criteria
-        key (str): property where the children nodes are stored
+        key (str): property where the children nodes are stored,
+            default is ``substmts``
 
     Returns:
         list: results collected from the apply function
@@ -273,6 +274,8 @@ def check(ctx, rescue=False):
 
     if errors:
         raise SyntaxError('\n'.join(errors))
+
+    return (errors, warnings)
 
 
 def parse(text, ctx=None):
