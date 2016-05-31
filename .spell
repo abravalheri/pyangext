@@ -8,6 +8,7 @@ attr
 bool
 builtin
 chainable
+chdir
 cli
 config
 conftest
@@ -53,6 +54,7 @@ stdout
 str
 substmts
 sys
+tmpdir
 todo
 tuple
 tuples

@@ -10,9 +10,9 @@ import warnings
 
 import pytest
 
-from pyang.statements import Statement
+from pyang.statements import Statement, validate_module
 
-from pyangext.utils import create_context, find, parse
+from pyangext.utils import create_context, find, parse, select
 
 __author__ = "Anderson Bravalheri"
 __copyright__ = "Copyright (C) 2016 Anderson Bravalheri"
@@ -173,3 +173,96 @@ def test_parse_from_file(tmpdir, ok_yang):
     yang_file = tmpdir.join('test')
     yang_file.write(ok_yang)
     test_parse_nested(str(yang_file))
+
+
+def _featureful_yang():
+    """Example of yang file with features"""
+    return """
+        module b {
+          namespace urn:b;
+          prefix b;
+
+          feature foo;
+          feature bar;
+
+          container a { if-feature foo; }
+          leaf b {
+            if-feature bar;
+            type string;
+          }
+        }
+    """
+
+
+@pytest.mark.parametrize('features, text', [
+    (['b:foo'], _featureful_yang()),
+])
+def test_features(features, text):
+    """
+    should parse
+    should have conditional children for feature passed
+    should not have conditional children for feature not passed
+    should have no errors/warnings
+    """
+    ctx_ = create_context(features=features)
+    with warnings.catch_warnings(record=True) as info:
+        module = parse(text, ctx_)
+        assert module
+        validate_module(ctx_, module)
+        assert select(module.i_children, 'container', 'a')
+        assert not select(module.i_children, 'leaf', 'b')
+
+    assert not info
+
+
+def _deviation_module():
+    """Example of yang file with deviation"""
+    return """
+        module d {
+          namespace urn:d;
+          prefix d;
+
+          import b {
+            prefix b;
+          }
+
+          deviation "/b:a" {
+            deviate not-supported;
+          }
+
+          deviation "/b:b" {
+            deviate replace {
+              type int32;
+            }
+          }
+        }
+    """
+
+
+@pytest.mark.skip('deviation not working')
+@pytest.mark.parametrize('deviation, deviation_text, text', [
+    ('d.yang', _deviation_module(), _featureful_yang()),
+])
+def test_deviation(tmpdir, deviation, deviation_text, text):
+    """
+    should parse
+    should not have deviate not-supported
+    should have nodes not deviated
+    should have deviated changes
+    should have no errors/warnings
+    """
+    with tmpdir.as_cwd():
+        yang_file = tmpdir.join(deviation)
+        yang_file.write(deviation_text)
+        ctx_ = create_context(deviations=[deviation])
+        with warnings.catch_warnings(record=True) as info:
+            module = parse(text, ctx_)
+            assert module
+            validate_module(ctx_, module)
+            assert not select(module.i_children, 'container', 'a')
+            b_leaf = select(module.i_children, 'leaf', 'b')
+            assert b_leaf
+            assert b_leaf[0].search_one('type').arg == 'int32'
+            assert b_leaf[0].search_one('type').arg != 'string'
+
+        assert not info

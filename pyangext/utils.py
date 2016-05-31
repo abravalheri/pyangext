@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """Utility belt for working with ``pyang`` and ``pyangext``."""
+import io
 import logging
 from os.path import isfile
 from warnings import warn
@@ -75,6 +76,18 @@ class objectify(object):  # pylint: disable=invalid-name
         self.__dict__[attr] = value
 
 
+def _parse_features_string(feature_str):
+    if feature_str.find(':') == -1:
+        return (feature_str, [])
+
+    [module_name, rest] = feature_str.split(':', 1)
+    if rest == '':
+        return (module_name, [])
+
+    features = rest.split(',')
+    return (module_name, features)
+
+
 def create_context(path='.', *options, **kwargs):
     """Generates a pyang context
 
@@ -95,6 +108,18 @@ def create_context(path='.', *options, **kwargs):
 
     for attr in _COPY_OPTIONS:
         setattr(ctx, attr, getattr(opts, attr))
+
+    # make a map of features to support, per module (taken from pyang bin)
+    for feature_name in opts.features:
+        (module_name, features) = _parse_features_string(feature_name)
+        ctx.features[module_name] = features
+
+    # apply deviations (taken from pyang bin)
+    for file_name in opts.deviations:
+        with io.open(file_name, "r", encoding="utf-8") as fd:
+            module = ctx.add_module(file_name, fd.read())
+            if module is not None:
+                ctx.deviation_modules.append(module)
 
     return ctx
 
