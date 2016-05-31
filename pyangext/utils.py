@@ -8,7 +8,7 @@ from warnings import warn
 from six import StringIO
 
 from pyang import Context, FileRepository
-from pyang.error import err_level, err_to_str, error_codes, is_warning
+from pyang.error import err_level, err_to_str, error_codes
 from pyang.translators import yang
 from pyang.yang_parser import YangParser
 
@@ -288,14 +288,14 @@ def check(ctx, rescue=False):
             # this module was added implicitly (by import); skip this error
             # the code includes submodules
             continue
-        elevel = err_level(etag)
+        elevel = err_level(etag)  # elevel 4 -> warning
         explain = err_to_str(etag, eargs)
         reason = etag if opts.print_error_code else explain
         if 'unexpected keyword "description"' in reason:
             # TODO: WTF pyang bug??
             elevel = 4
         message = '({}) {}'.format(str(epos), reason)
-        if is_warning(elevel) and etag not in opts.errors:
+        if (elevel >= 4 or etag in opts.warnings) and etag not in opts.errors:
             if 'error' in opts.warnings and etag not in opts.warnings:
                 pass
             elif 'none' in opts.warnings:
