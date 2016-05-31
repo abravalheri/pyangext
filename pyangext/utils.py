@@ -89,16 +89,56 @@ def _parse_features_string(feature_str):
 
 
 def create_context(path='.', *options, **kwargs):
-    """Generates a pyang context
+    """Generates a pyang context.
+
+    The dict options and keyword arguments are similar to the command
+    line options for ``pyang``. For ``plugindir`` use env var
+    ``PYANG_PLUGINPATH``. For ``path`` option use the argument with the
+    same name, or ``PYANG_MODPATH`` env var.
 
     Arguments:
         path (str): location of YANG modules.
+            (Join string with ``os.pathsep`` for multiple locations).
+            Default is the current working dir.
         *options: list of dicts, with options to be passed to context.
+            See bellow.
         **kwargs: similar to ``options`` but have a higher precedence.
+            See bellow.
+
+    Keyword Arguments:
+        print_error_code (bool): On errors, print the error code instead
+            of the error message. Default ``False``.
+        warnings (list): If contains ``error``, treat all warnings
+            as errors, except any other error code in the list.
+            If contains ``none``, do not report any warning.
+        errors (list): Treat each error code container as an error.
+        ignore_error_tags (list): Ignore error code.
+            (For a list of error codes see ``pyang --list-errors``).
+        ignore_errors (bool): Ignore all errors. Default ``False``.
+        canonical (bool): Validate the module(s) according to the
+            canonical YANG order. Default ``False``.
+        yang_canonical (bool): Print YANG statements according to the
+            canonical order. Default ``False``.
+        yang_remove_unused_imports (bool): Remove unused import statements
+            when printing YANG. Default ``False``.
+        trim_yin (bool): In YIN input modules, trim whitespace
+            in textual arguments. Default ``False``.
+        lax_xpath_checks (bool): Lax check of XPath expressions.
+            Default ``False``.
+        strict (bool): Force strict YANG compliance. Default ``False``.
+        max_line_len (int): Maximum line length allowed. Disabled by default.
+        max_identifier_len (int): Maximum identifier length allowed.
+            Disabled by default.
+        features (list): Features to support, default all.
+            Format ``<modname>:[<feature>,]*``.
+        keep_comments (bool): Do not discard comments. Default ``True``.
+        no_path_recurse (bool): Do not recurse into directories
+            in the yang path. Default ``False``.
 
     Returns:
         pyang.Context: Context object for ``pyang`` usage
     """
+    # deviations (list): Deviation module (NOT CURRENTLY WORKING).
 
     opts = objectify(DEFAULT_OPTIONS, *options, **kwargs)
     repo = FileRepository(path, no_path_recurse=opts.no_path_recurse)
