@@ -4,6 +4,9 @@ pyangext
 
 Sensible extensions for |pyang|_
 
+.. image:: https://readthedocs.org/projects/pyangext/badge/?version=latest
+    :target: http://pyangext.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation Status
 .. image:: https://travis-ci.org/abravalheri/pyangext.svg?branch=master
     :target: https://travis-ci.org/abravalheri/pyangext
 .. image:: https://coveralls.io/repos/github/abravalheri/pyangext/badge.svg?branch=master
