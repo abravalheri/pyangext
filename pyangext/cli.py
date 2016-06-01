@@ -13,7 +13,7 @@ that the paths of all directories containing plugins to be present in the
 to the file that contains the function registered, and builds a list with
 the containing directories.
 
-In this sense, ``pyangext call`` command can be used as a bridge to
+In this sense, ``pyangext run`` command can be used as a bridge to
 the ``pyang`` command, but using the auto-discovery feature.
 
 .. note:: Including non pyang-plugin python files alongside pyang-plugins
@@ -21,6 +21,7 @@ the ``pyang`` command, but using the auto-discovery feature.
 
     It is recommended that the function registered as entry-point follows
     the proprietary pyang plugin convention, or in other words:
+
     - it should be named ``pyang_plugin_init``
     - it should call ``pyang.plugin.register_plugin`` with an instance of
       ``pyang.plugin.PyangPlugin`` as argument.
@@ -29,34 +30,38 @@ the ``pyang`` command, but using the auto-discovery feature.
     https://pythonhosted.org/setuptools/setuptools.html#dynamic-discovery-of-services-and-plugins
 
 
-``pyangext`` CLI
-================
-::
-    Usage: pyangext [OPTIONS] COMMAND [ARGS]...
+Command Line Interface
+======================
 
-    Options:
-      -h, --help             Show this message and exit.
+  Usage:
+    ``pyangext [OPTIONS] COMMAND [ARGS]``
 
-      -v, --version          Show the version and exit.
+  Options:
+    -h, --help             Show this message and exit.
 
-      --path                 Prints the auto discovered plugin path.
-                             Python packages that register an entry-point
-                             inside ``yang.plugins`` will be auto-detected.
+    -v, --version          Show the version and exit.
 
-      --init, --export-path  Prints an export shell statement with the auto
-                             discovered plugin path.
+    --path                 Prints the auto discovered plugin path.
+                           Python packages that register an entry-point
+                           inside ``yang.plugins`` will be auto-detected.
 
-                             This may be used by shell script to configure
-                             ``PYANG_PLUGINPATH`` environment variable.
+    --init, --export-path  Prints an export shell statement with the auto
+                           discovered plugin path.
 
-                             Example:
-                                 eval $(pyangext --export-path)
+                           This may be used by shell script to configure
+                           ``PYANG_PLUGINPATH`` environment variable.
 
-      --help                 Show this message and exit.
+                           Example: |example|
 
-    Commands:
-      call  invoke pyang script with plugin path adjusted using auto-discovery.
+    --help                 Show this message and exit.
 
+  Commands:
+    :``call``: invoke pyang script with plugin path adjusted using
+        auto-discovery.
+
+.. |example| raw:: html
+
+   <code><pre>eval $(pyangext --export-path)</pre></code>
 """
 import sys
 from os import environ
@@ -110,7 +115,8 @@ def export_path(ctx, _, value):
     This may be used by shell script to configure ``PYANG_PLUGINPATH``
     environment variable.
 
-    Example: eval $(pyangext --export-path)
+    Example:
+        eval $(pyangext --export-path)
     """
     if not value or ctx.resilient_parsing:
         return

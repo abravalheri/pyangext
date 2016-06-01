@@ -17,11 +17,13 @@ from .definitions import PREFIX_SEPARATOR
 __all__ = [
     'create_context',
     'compare_prefixed',
+    'qualify_str',
     'select',
     'find',
     'dump',
     'check',
     'parse',
+    'walk',
 ]
 
 logging.basicConfig(level=logging.INFO)
@@ -307,7 +309,7 @@ def check(ctx, rescue=False):
     Raises:
         SyntaxError: if errors detected
 
-    Warnings:
+    Warns:
         SyntaxWarning: if warnings detected
 
     Returns:
@@ -360,14 +362,23 @@ def check(ctx, rescue=False):
 
 
 def parse(text, ctx=None):
-    """Parse a YANG statement into an Abstract Syntax Tree
+    """Parse a YANG statement into an Abstract Syntax subtree.
 
     Arguments:
         text (str): file name for a YANG module or text
         ctx (optional pyang.Context): context used to validate text
 
     Returns:
-        pyang.statements.Statement
+        pyang.statements.Statement: Abstract syntax subtree
+
+    Notes:
+        The ``parse`` function can be used to parse small amounts of text.
+        If yout plan to parse an entire YANG (sub)module, please use instead::
+
+            ast = ctx.add_module(module_name, text_contet)
+
+        It is also well known that ``parse`` function cannot solve
+        YANG deviations yet.
     """
     parser = YangParser()
 

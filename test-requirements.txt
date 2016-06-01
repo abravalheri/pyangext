@@ -5,6 +5,7 @@ flake8
 isort
 mock
 pre-commit
+pyenchant
 pytest
 pytest-cov
 pytest-flake8

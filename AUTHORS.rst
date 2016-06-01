@@ -2,4 +2,4 @@
 Developers
 ==========
 
-* (none) <my@email.com>
+* Anderson Bravalheri <andersonbravalherigmail.com>
