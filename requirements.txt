@@ -1,4 +1,4 @@
 click
-git+https://github.com/abravalheri/pyang.git@deploy#egg=pyang
 inflection
+pyang
 six

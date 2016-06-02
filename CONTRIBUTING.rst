@@ -25,7 +25,7 @@ a better person).
 Please, try to keep your commit messages as communicative as possible.
 There is a good
 `reference <https://github.com/erlang/otp/wiki/Writing-good-commit-messages>`_
-for it as well :blush:.
+for it as well.
 
 .. note::
     I usually think in the commit itself as an implicit subject of
@@ -85,7 +85,7 @@ Reporting a Bug
 -  If possible, submit a Pull Request with a failing test. It would be
    wonderful to increase the test coverage!
 -  Consider the challenge of fixing the bug, I'm sure it can be funny or
-   at least very aggrandizing :stuck_out_tongue_winking_eye:
+   at least very aggrandizing.
 
 Requesting a Feature
 --------------------
@@ -106,14 +106,12 @@ Requesting a Feature
    code. We always have more work to do than time to do it. If you can
    write some code then that will speed the process along.
 
-NOTE
-----
+.. note::
+    This guide was partially copied from
 
-This guide was partially copied from
+    - `ember.js <https://raw.githubusercontent.com/emberjs/ember.js/master/CONTRIBUTING.md>`_
+    - `factory_girl <https://raw.github.com/thoughtbot/factory_girl_rails/master/CONTRIBUTING.md>`_
+    - `puppet <https://raw.githubusercontent.com/puppetlabs/puppet/master/CONTRIBUTING.md>`_
+    - `rails <http://edgeguides.rubyonrails.org/contributing_to_ruby_on_rails.html#contributing-to-the-rails-documentation>`_
 
-- `ember.js <https://raw.githubusercontent.com/emberjs/ember.js/master/CONTRIBUTING.md>`_
-- `factory_girl <https://raw.github.com/thoughtbot/factory_girl_rails/master/CONTRIBUTING.md>`_
-- `puppet <https://raw.githubusercontent.com/puppetlabs/puppet/master/CONTRIBUTING.md>`_
-- `rails <http://edgeguides.rubyonrails.org/contributing_to_ruby_on_rails.html#contributing-to-the-rails-documentation>`_
-
-Please consider reading them. They are just great!
+    Please consider reading them. They are just great!

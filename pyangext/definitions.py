@@ -1,11 +1,16 @@
 # -*- coding: utf-8 -*-
-"""Meta information about YANG modeling language."""
+"""Meta information about YANG modeling language.
+
+See also:
+    https://tools.ietf.org/html/rfc6020
+"""
 
 __author__ = "Anderson Bravalheri"
 __copyright__ = "Copyright (C) 2016 Anderson Bravalheri"
 __license__ = "mozilla"
 
 PREFIX_SEPARATOR = ':'
+"""Character used to denote prefix in YANG language."""
 
 URL_SEPARATOR = '/'
 
@@ -30,6 +35,7 @@ BUILT_IN_TYPES = [
     'uint8',
     'union',
 ]
+"""Types supported by default in the YANG language."""
 
 YANG_KEYWORDS = [
     'action',
@@ -101,6 +107,7 @@ YANG_KEYWORDS = [
     'yang-version',
     'yin-element',
 ]
+"""YANG language Keywords."""
 
 HEADER_STATEMENTS = [
     'organization',
@@ -108,11 +115,13 @@ HEADER_STATEMENTS = [
     'revision',
     'yang-version',
 ]
+"""Descriptive statements used in the header of a module or submodule."""
 
 ID_STATEMENTS = [
     'namespace',
     'prefix',
 ]
+"""Statements used to identify the module."""
 
 DATA_STATEMENTS = [
     'container',
@@ -121,3 +130,4 @@ DATA_STATEMENTS = [
     'list',
     'anyxml',
 ]
+"""Statements that denote a data node in the abstract tree."""

@@ -2,4 +2,4 @@
 Developers
 ==========
 
-* Anderson Bravalheri <andersonbravalherigmail.com>
+* Anderson Bravalheri <andersonbravalheri@gmail.com>

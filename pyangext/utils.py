@@ -230,7 +230,8 @@ def select(statements, keyword=None, arg=None, ignore_prefix=False):
 def find(parent, keyword=None, arg=None, ignore_prefix=False):
     """Select all sub-statements by keyword, or argument or both.
 
-    .. seealso:: function :func:`select`
+    See Also:
+        function :func:`select`
     """
     return select(parent.substmts, keyword, arg, ignore_prefix)
 
@@ -371,7 +372,7 @@ def parse(text, ctx=None):
     Returns:
         pyang.statements.Statement: Abstract syntax subtree
 
-    Notes:
+    Note:
         The ``parse`` function can be used to parse small amounts of text.
         If yout plan to parse an entire YANG (sub)module, please use instead::
 

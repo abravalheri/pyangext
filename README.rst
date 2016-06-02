@@ -171,4 +171,4 @@ Ultimate Goals
 .. |setuptools| replace:: ``setuptools``
 .. _setuptools: https://pythonhosted.org/setuptools/setuptools.html#dynamic-discovery-of-services-and-plugins
 .. |guidelines| replace:: Contribution Guidelines
-.. _guidelines: https://github.com/abravalheri/pyangext/blob/master/CONTRIBUTING.rst
+.. _guidelines: http://pyangext.readthedocs.io/en/latest/contributing.html

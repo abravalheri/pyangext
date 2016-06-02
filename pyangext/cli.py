@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""Command line tools for pyang + sensible extensions.
+"""Extension for the pyang command line interface.
 
 This module includes tools for augmenting ``PYANG_PLUGINPATH`` with
 the location of auto-discovered pyang plugins.
@@ -16,7 +16,8 @@ the containing directories.
 In this sense, ``pyangext run`` command can be used as a bridge to
 the ``pyang`` command, but using the auto-discovery feature.
 
-.. note:: Including non pyang-plugin python files alongside pyang-plugins
+Note:
+    Including non pyang-plugin python files alongside pyang-plugins
     python files (in the same directory) will result in a pyang CLI crash.
 
     It is recommended that the function registered as entry-point follows
@@ -26,7 +27,7 @@ the ``pyang`` command, but using the auto-discovery feature.
     - it should call ``pyang.plugin.register_plugin`` with an instance of
       ``pyang.plugin.PyangPlugin`` as argument.
 
-.. seealso::
+See Also:
     https://pythonhosted.org/setuptools/setuptools.html#dynamic-discovery-of-services-and-plugins
 
 
@@ -82,12 +83,11 @@ __license__ = "mozilla"
 
 
 def _fixdoc(func):
-    """Fix the text wrapping in a function's docstring"""
+    """Return a new text with the text wrapping in a function's docstring"""
     docstring = dedent(func.__doc__)
     lines = (' '.join(line.split()) for line in docstring.split('\n\n'))
 
     new_docstring = "\n".join(lines)
-    func.__doc__ = new_docstring
 
     return new_docstring
 
@@ -116,7 +116,9 @@ def export_path(ctx, _, value):
     environment variable.
 
     Example:
-        eval $(pyangext --export-path)
+        ::
+
+            eval $(pyangext --export-path)
     """
     if not value or ctx.resilient_parsing:
         return
@@ -137,27 +139,20 @@ def export_path(ctx, _, value):
     '--init', '--export-path', help=_fixdoc(export_path),
     is_flag=True, expose_value=False, callback=export_path)
 def call():
-    """\
-    pyang + sensible extensions
+    """pyang + sensible extensions
 
     Includes self-registered pyang plugin auto-discovery
     """
     pass
-
-_fixdoc(call)
 
 
 @call.command(
     'run', context_settings={'ignore_unknown_options': True})
 @click.argument('args', nargs=-1, type=click.UNPROCESSED)
 def call_pyang(args):
-    """\
-    invoke pyang script with plugin path adjusted using auto-discovery
-    """
+    """invoke pyang script with plugin path adjusted using auto-discovery."""
 
     environ['PYANG_PLUGINPATH'] = pathsep.join(expanded())
     proc = Popen(['pyang'] + list(args), stdout=sys.stdout, stderr=sys.stderr)
     proc.wait()
     return proc.returncode
-
-_fixdoc(call_pyang)
